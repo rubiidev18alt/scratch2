@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch 2.0 Revival</title>
+    <!-- Loading Ruffle directly from their official CDN -->
+    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+    <style>
+        /* Reset and layout */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        /* Full screen container for the archive */
+        .revival-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* The Iframe targeting the Scratch 2.0 editor archive */
+        #scratch-frame {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Loading indicator */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-family: sans-serif;
+            transition: opacity 0.5s ease;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4d97ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #status-text {
+            color: #333;
+            font-size: 1.2rem;
+            max-width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <div class="spinner" id="loader-spinner"></div>
+        <div id="status-text">Loading...</div>
+    </div>
+
+    <div class="revival-container">
+        <iframe 
+            id="scratch-frame" 
+            src="https://web.archive.org/web/20150505183301if_/https://scratch.mit.edu/projects/editor/?tip_bar=home" 
+            allowfullscreen 
+            allow="geolocation; microphone; camera; midi; encrypted-media">
+        </iframe>
+    </div>
+
+    <script>
+        const frame = document.getElementById('scratch-frame');
+        const overlay = document.getElementById('loading-overlay');
+        const statusText = document.getElementById('status-text');
+
+        // Check for slow loading
+        const slowLoadTimeout = setTimeout(() => {
+            if (overlay.style.display !== 'none') {
+                statusText.innerText = "This is taking a while...";
+            }
+        }, 8000);
+
+        // Hide the loading overlay once the frame has loaded
+        frame.onload = function() {
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                clearTimeout(slowLoadTimeout);
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+            }, 1500);
+        };
+        
+        // Error handling if the frame fails to load
+        frame.onerror = function() {
+            statusText.innerText = "Oops, something went wrong. Please refresh.";
+        };
+    </script>
+</body>
+</html>
