@@ -1,161 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scratch 2.0 Revival</title>
+    <script>
+      window.RufflePlayer = window.RufflePlayer || {};
+      window.RufflePlayer.config = {
+        autoplay: "on",
+        quality: "high",
+      };
+    </script>
     <!-- Loading Ruffle directly from their official CDN -->
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
     <style>
-        /* Reset and layout */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: #000;
+      /* Reset and layout */
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background-color: #000;
+      }
+
+      /* Full screen container for the archive */
+      .revival-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* The Iframe targeting the Scratch 2.0 editor archive */
+      #scratch-frame {
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Loading indicator */
+      #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        font-family: sans-serif;
+        transition:
+          opacity 0.5s ease,
+          background-color 0.45s ease;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #ff2d2d;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
         }
 
-        /* Full screen container for the archive */
-        .revival-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        to {
+          transform: rotate(360deg);
         }
+      }
 
-        /* The Iframe targeting the Scratch 2.0 editor archive */
-        #scratch-frame {
-            border: none;
-            width: 100%;
-            height: 100%;
+      #status-text {
+        color: #333;
+        font-size: 1.2rem;
+        max-width: 80%;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: translateX(0px);
         }
-
-        /* Loading indicator */
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            font-family: sans-serif;
-            transition: opacity 0.5s ease;
-            text-align: center;
-            padding: 20px;
-            transition: background-color 0.45s ease;
+        20% {
+          transform: translateX(-4px);
         }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #2c2c2e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+        40% {
+          transform: translateX(4px);
         }
-
-        @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-        animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
-    }
-
-    6% {
-        transform: rotate(4deg);
-        animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
-    }
-
-    78% {
-        transform: rotate(320deg);
-        animation-timing-function: linear;
-    }
-
-    92% {
-        transform: rotate(352deg);
-        animation-timing-function: cubic-bezier(0.55, 0, 0.8, 0.25);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-        #status-text {
-            color: #333;
-            font-size: 1.2rem;
-            max-width: 80%;
+        60% {
+          transform: translateX(-3px);
         }
-
-        @keyframes shake {
-    0%   { transform: translateX(0px); }
-    20%  { transform: translateX(-4px); }
-    40%  { transform: translateX(4px); }
-    60%  { transform: translateX(-3px); }
-    80%  { transform: translateX(3px); }
-    100% { transform: translateX(0px); }
-}
+        80% {
+          transform: translateX(3px);
+        }
+        100% {
+          transform: translateX(0px);
+        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="loading-overlay">
-        <div class="spinner" id="loader-spinner"></div>
-        <div id="status-text">Loading...</div>
+      <div class="spinner" id="loader-spinner"></div>
+      <div id="status-text">Loading...</div>
     </div>
 
     <div class="revival-container">
-        <iframe 
-            id="scratch-frame" 
-            src="https://web.archive.org/web/20150505183301if_/https://scratch.mit.edu/projects/editor/?tip_bar=home" 
-            allowfullscreen 
-            allow="geolocation; microphone; camera; midi; encrypted-media">
-        </iframe>
+      <iframe
+        id="scratch-frame"
+        src="https://web.archive.org/web/20150505183301if_/https://scratch.mit.edu/projects/editor/?tip_bar=home"
+        loading="eager"
+        allowfullscreen
+        allow="geolocation; microphone; camera; midi; encrypted-media"
+      >
+      </iframe>
     </div>
 
     <script>
-        const frame = document.getElementById('scratch-frame');
-        const overlay = document.getElementById('loading-overlay');
-        const statusText = document.getElementById('status-text');
+      const frame = document.getElementById("scratch-frame");
+      const overlay = document.getElementById("loading-overlay");
+      const statusText = document.getElementById("status-text");
 
-        // Check for slow loading
-        const slowLoadTimeout = setTimeout(() => {
-            if (overlay.style.display !== 'none') {
-                statusText.innerText = "This is taking quite a while, but itll load!";
-            }
-        }, 8000);
+      const loadingDuration = Math.floor(3000 + Math.random() * 3001);
+      let overlayHidden = false;
 
-        // Hide the loading overlay once the frame has loaded
-        frame.onload = function() {
-            setTimeout(() => {
-                overlay.style.opacity = '0';
-                clearTimeout(slowLoadTimeout);
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 500);
-            }, 1500);
-        };
-        
-        // Error handling if the frame fails to load
-        frame.onerror = function() {
-            document.querySelector("#loading-overlay").style.backgroundColor = "#ff2d2d";
-            statusText.innerText = "Oops, something went wrong. Please refresh and try again.";
-            overlay.style.animation = "shake 0.25s ease-in-out";
-            setTimeout(() => {
-        overlay.style.backgroundColor = "#000";
-    }, 180);
-        };
+      function hideOverlay() {
+        if (overlayHidden) {
+          return;
+        }
+
+        overlayHidden = true;
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+        }, 500);
+      }
+
+      // Keep the Scratch/Ruffle frame loading behind the splash screen, then reveal it
+      // after a realistic 3-6 second loading window.
+      const loadingScreenTimeout = setTimeout(hideOverlay, loadingDuration);
+
+      // If the iframe reports that it loaded early, keep the loading screen visible for
+      // the selected 3-6 second window so the transition does not flash.
+      frame.onload = function () {
+        statusText.innerText = "Almost ready...";
+      };
+
+      // Error handling if the frame fails to load
+      frame.onerror = function () {
+        document.querySelector("#loading-overlay").style.backgroundColor =
+          "#ff2d2d";
+        clearTimeout(loadingScreenTimeout);
+        statusText.innerText =
+          "Oops, something went wrong. Please refresh and try again.";
+        overlay.style.opacity = "1";
+        overlay.style.display = "flex";
+        overlay.style.animation = "shake 0.25s ease-in-out";
+        setTimeout(() => {
+          overlay.style.backgroundColor = "#000";
+        }, 180);
+      };
     </script>
-</body>
+  </body>
 </html>
