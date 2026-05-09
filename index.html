@@ -53,28 +53,59 @@
             transition: opacity 0.5s ease;
             text-align: center;
             padding: 20px;
+            transition: background-color 0.45s ease;
         }
 
         .spinner {
             width: 50px;
             height: 50px;
             border: 5px solid #f3f3f3;
-            border-top: 5px solid #4d97ff;
+            border-top: 5px solid #2c2c2e;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    0% {
+        transform: rotate(0deg);
+        animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    6% {
+        transform: rotate(4deg);
+        animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
+    }
+
+    78% {
+        transform: rotate(320deg);
+        animation-timing-function: linear;
+    }
+
+    92% {
+        transform: rotate(352deg);
+        animation-timing-function: cubic-bezier(0.55, 0, 0.8, 0.25);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
         #status-text {
             color: #333;
             font-size: 1.2rem;
             max-width: 80%;
         }
+
+        @keyframes shake {
+    0%   { transform: translateX(0px); }
+    20%  { transform: translateX(-4px); }
+    40%  { transform: translateX(4px); }
+    60%  { transform: translateX(-3px); }
+    80%  { transform: translateX(3px); }
+    100% { transform: translateX(0px); }
+}
     </style>
 </head>
 <body>
@@ -101,7 +132,7 @@
         // Check for slow loading
         const slowLoadTimeout = setTimeout(() => {
             if (overlay.style.display !== 'none') {
-                statusText.innerText = "This is taking a while...";
+                statusText.innerText = "This is taking quite a while, but itll load!";
             }
         }, 8000);
 
@@ -118,7 +149,12 @@
         
         // Error handling if the frame fails to load
         frame.onerror = function() {
-            statusText.innerText = "Oops, something went wrong. Please refresh.";
+            document.querySelector("#loading-overlay").style.backgroundColor = "#ff2d2d";
+            statusText.innerText = "Oops, something went wrong. Please refresh and try again.";
+            overlay.style.animation = "shake 0.25s ease-in-out";
+            setTimeout(() => {
+        overlay.style.backgroundColor = "#000";
+    }, 180);
         };
     </script>
 </body>
